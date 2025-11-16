@@ -41,5 +41,7 @@ p.s. la qualité du rendu n'est pas au rdv pour un FPS
 
 ## Mes settings jeu
 
+p.s. je n'ai vu aucune différence de perf entre mode Exclusif et fullscreen sans bordure, je suis resté en sans bordure pour des besoins pratiques.
+
 ![Fidelity_90_VRAM_80](Fidelity_90_VRAM_80.png)
 ![BO7-nvidia-reflex-avec](BO7-nvidia-reflex-avec.png)
