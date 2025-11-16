@@ -103,6 +103,7 @@ $configChanges = @{
     "BloodLimitInterval" = "2000"
     "ShowBlood" = "false"
     "ShowBrass" = "false"
+    "DepthOfField" = "false"
     "DepthOfFieldQuality" = "Low"
     "CorpseLimit" = "0"
     "ShaderQuality" = "Low"
@@ -110,6 +111,9 @@ $configChanges = @{
     "BulletImpacts" = "false"
     "TerrainQuality" = "Very Low"
     "Tessellation" = "0_Off"
+    "StaticSunshadowClipmapResolution" = "0"
+    "ScreenSpaceShadowQuality" = "Off"
+    "EnableVelocityBasedBlur" = "false"
 }
 
 # Function to modify config file
