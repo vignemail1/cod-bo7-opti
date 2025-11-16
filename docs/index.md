@@ -9,6 +9,8 @@ disclaimer: les tests d'input lag ont été réalisé avec AMD FLM (ce n'est pas
 ![BO7-base-no-opti](BO7-base-no-opti.png)
 ![BO7-base-no-opti_input-lag](BO7-base-no-opti_input-lag.png)
 
+Fichier de résultats test de performances dans le jeu : [DEV_Benchmark_24679191_20251113_200414.csv](./performance_results/DEV_Benchmark_24679191_20251113_200414.csv)
+
 ### Test pur natif
 
 p.s. la qualité du rendu n'est pas au rdv pour un FPS
@@ -34,10 +36,14 @@ p.s. la qualité du rendu n'est pas au rdv pour un FPS
 ![BO7-opti-no-GSYNC-no-VSYNC-Reflex-boost](BO7-opti-no-GSYNC-no-VSYNC-Reflex-boost.png)
 ![BO7-opti-no-GSYNC-no-VSYNC-Reflex-boost_input-lag](BO7-opti-no-GSYNC-no-VSYNC-Reflex-boost_input-lag.png)
 
+Fichier de résultats test de performances dans le jeu : [DEV_Benchmark_24679191_20251115_092330.csv](./performance_results/DEV_Benchmark_24679191_20251115_092330.csv)
+
 ### 2eme test : G-SYNC et V-SYNC 100% Gameplay et Nvidia Reflex "avec"
 
 ![BO7-opti-GSYNC-VSYNC-100-Reflex-on](BO7-opti-GSYNC-VSYNC-100-Reflex-on.png)
 ![BO7-opti-GSYNC-VSYNC-100-Reflex-on](BO7-opti-GSYNC-VSYNC-100-Reflex-on_input-lag.png)
+
+Fichier de résultats test de performances dans le jeu : [DEV_Benchmark_24679191_20251115_113810.csv](./performance_results/DEV_Benchmark_24679191_20251115_113810.csv)
 
 ## Mes settings jeu
 
