@@ -259,6 +259,11 @@ $configChanges = @{
 }
 ```
 
+Quelques explications :
+
+- NVIDIA Reflex Low Latency : On (si GPU-bound) ou On + Boost (si CPU-bound)
+- Variable Rate Shading : Activé
+
 ## Sécurité
 
 - Le script ne modifie **que** les fichiers de configuration Call of Duty
