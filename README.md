@@ -6,6 +6,8 @@ Je vous invite vivement à lire le script.
 Il ne faut JAMAIS exécuter un script, surtout en mode administrateur, si on a un doute sur ce qui est réalisé par le script.
 C'est une règle de bon sens mais tout le monde n'est pas expert. Donc si vous n'avez pas confiance dans le script, passez votre chemin.
 
+Les étapes détails de mon opti BO7/Nvidia sont [ici](./docs/index.md).
+
 ## Fonctionnalités
 
 - **Détection automatique** : Trouve automatiquement les fichiers de configuration (cod24, cod25, etc.)
@@ -49,6 +51,8 @@ Le script configure automatiquement 12 paramètres pour améliorer les performan
 ## Utilisation
 
 ### Méthode 1 : Exécution directe
+
+p.s. normalement administrateur ne devrait pas être nécessaire, mais au cas où.
 
 Ouvrez PowerShell en tant qu'administrateur (barre de recherche: Powershell, clic droit dessus, lancer en tant qu'administrateur) et exécutez :
 
