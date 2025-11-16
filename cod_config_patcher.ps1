@@ -1,78 +1,100 @@
 # PowerShell script to backup and modify Call of Duty config files
 # Requires PowerShell 5.0 or higher
-# Version: 2.0
+# Version: 2.2
 
-# Define the user profile path
+# Define potential config locations
 $userPath = $env:USERPROFILE
-$codPath = Join-Path $userPath "Documents\Call of Duty\players"
+$localAppData = $env:LOCALAPPDATA
 
-# Check if the directory exists
-if (-not (Test-Path $codPath)) {
-    Write-Error "Directory not found: $codPath"
-    Write-Host "Expected path: $codPath" -ForegroundColor Red
-    exit 1
-}
+$configPaths = @(
+    (Join-Path $userPath "Documents\Call of Duty\players"),
+    (Join-Path $localAppData "Activision\Call of Duty\Players")
+)
 
-Write-Host "Scanning directory: $codPath" -ForegroundColor Cyan
+Write-Host "Call of Duty Config Patcher v2.2" -ForegroundColor Cyan
+Write-Host "=================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Find all .txt0 files matching the pattern s.1.0.cod*.txt0
-$txt0Files = Get-ChildItem -Path $codPath -Filter "s.1.0.cod*.txt0" -ErrorAction SilentlyContinue
+# Function to find config files in a directory
+function Find-ConfigFiles {
+    param (
+        [string]$Path
+    )
 
-if ($txt0Files.Count -eq 0) {
-    Write-Error "No config files found matching pattern: s.1.0.cod*.txt0"
-    Write-Host "Please verify that Call of Duty config files exist in: $codPath" -ForegroundColor Yellow
-    exit 1
+    if (-not (Test-Path $Path)) {
+        return @()
+    }
+
+    Write-Host "Scanning: $Path" -ForegroundColor Yellow
+
+    # Define search patterns for different config file formats
+    $patterns = @(
+        "s.1.0.cod*.txt0",      # Pattern: s.1.0.cod24.txt0, s.1.0.cod25.txt0
+        "s.1.0.bt.cod*.txt0"    # Pattern: s.1.0.bt.cod25.txt0
+    )
+
+    $foundPairs = @()
+
+    foreach ($pattern in $patterns) {
+        $txt0Files = Get-ChildItem -Path $Path -Filter $pattern -ErrorAction SilentlyContinue
+
+        foreach ($txt0File in $txt0Files) {
+            # Extract the base name without extension
+            $baseName = $txt0File.Name -replace '\.txt0$', ''
+            $txt1Path = Join-Path $Path "$baseName.txt1"
+
+            # Check if the corresponding .txt1 file exists
+            if (Test-Path $txt1Path) {
+                # Check if this pair is already in the list (avoid duplicates)
+                $alreadyAdded = $foundPairs | Where-Object { $_.BaseName -eq $baseName }
+
+                if (-not $alreadyAdded) {
+                    $foundPairs += [PSCustomObject]@{
+                        BaseName = $baseName
+                        Path = $Path
+                        Txt0 = $txt0File.FullName
+                        Txt1 = $txt1Path
+                    }
+                    Write-Host "  Found pair: $baseName" -ForegroundColor Green
+                }
+            }
+        }
+    }
+
+    return $foundPairs
 }
 
-# Automatically select the first matching pair
-$selectedFile = $null
-$fileBaseName = $null
+# Search for config files in all locations
+Write-Host "Searching for Call of Duty config files..." -ForegroundColor Cyan
+Write-Host ""
 
-foreach ($txt0File in $txt0Files) {
-    # Extract the base name without extension (e.g., s.1.0.cod24 or s.1.0.cod25)
-    $baseName = $txt0File.Name -replace '\.txt0$', ''
-    $txt1Path = Join-Path $codPath "$baseName.txt1"
-
-    # Check if the corresponding .txt1 file exists
-    if (Test-Path $txt1Path) {
-        $selectedFile = $txt0File
-        $fileBaseName = $baseName
-        Write-Host "Found matching config pair: $baseName" -ForegroundColor Green
-        break
+$allConfigPairs = @()
+foreach ($path in $configPaths) {
+    $pairs = Find-ConfigFiles -Path $path
+    if ($pairs.Count -gt 0) {
+        $allConfigPairs += $pairs
     }
 }
 
-if (-not $selectedFile) {
-    Write-Error "No matching .txt0 and .txt1 file pair found"
-    Write-Host "Available .txt0 files:" -ForegroundColor Yellow
-    $txt0Files | ForEach-Object { Write-Host "  - $($_.Name)" }
-    exit 1
-}
-
-# Define the files to backup and modify
-$files = @("$fileBaseName.txt0", "$fileBaseName.txt1")
-
-Write-Host "Will process the following files:" -ForegroundColor Cyan
-$files | ForEach-Object { Write-Host "  - $_" -ForegroundColor White }
-Write-Host ""
-
-# Generate timestamp without spaces or special characters
-$timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-$archiveName = "cod_backup_${timestamp}.zip"
-$archivePath = Join-Path $codPath $archiveName
-
-# Create the ZIP archive
-Write-Host "Creating backup archive: $archiveName" -ForegroundColor Cyan
-try {
-    $filesToZip = $files | ForEach-Object { Join-Path $codPath $_ }
-    Compress-Archive -Path $filesToZip -DestinationPath $archivePath -Force
-    Write-Host "Backup created successfully: $archivePath" -ForegroundColor Green
+if ($allConfigPairs.Count -eq 0) {
+    Write-Error "No config files found in any location"
     Write-Host ""
-} catch {
-    Write-Error "Failed to create backup: $_"
+    Write-Host "Searched locations:" -ForegroundColor Yellow
+    foreach ($path in $configPaths) {
+        Write-Host "  - $path" -ForegroundColor Gray
+    }
+    Write-Host ""
+    Write-Host "Supported patterns:" -ForegroundColor Yellow
+    Write-Host "  - s.1.0.cod*.txt0/.txt1 (e.g., s.1.0.cod24.txt0)" -ForegroundColor Gray
+    Write-Host "  - s.1.0.bt.cod*.txt0/.txt1 (e.g., s.1.0.bt.cod25.txt0)" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "Please verify that Call of Duty has been launched at least once." -ForegroundColor Yellow
     exit 1
 }
+
+Write-Host ""
+Write-Host "Found $($allConfigPairs.Count) config pair(s) to process" -ForegroundColor Green
+Write-Host ""
 
 # Define the configuration changes
 $configChanges = @{
@@ -97,7 +119,7 @@ function Update-ConfigFile {
         [hashtable]$Changes
     )
 
-    Write-Host "Processing file: $(Split-Path $FilePath -Leaf)" -ForegroundColor Cyan
+    Write-Host "  Processing: $(Split-Path $FilePath -Leaf)" -ForegroundColor Cyan
 
     # Read the file content
     $lines = Get-Content -Path $FilePath
@@ -118,20 +140,18 @@ function Update-ConfigFile {
 
                 # Split the line at '=' to separate key part and value part
                 if ($line -match '^([^=]+=)\s*([^/]*)(//.*)?$') {
-                    $beforeEquals = $matches[1]  # Everything before and including '='
-                    $oldValue = $matches[2].Trim()  # The actual value
-                    $comment = if ($matches[3]) { " " + $matches[3] } else { "" }  # Comment if exists
+                    $beforeEquals = $matches[1]
+                    $oldValue = $matches[2].Trim()
+                    $comment = if ($matches[3]) { " " + $matches[3] } else { "" }
 
                     # Only modify if the value is actually different
                     if ($oldValue -ne $newValue) {
-                        # Reconstruct the line with new value and preserved comment
                         $modifiedLine = $beforeEquals + " " + $newValue + $comment
                         $changesApplied++
-                        Write-Host "  Changed $key : $oldValue -> $newValue $(if($comment){'(comment preserved)'})" -ForegroundColor Yellow
+                        Write-Host "    Changed $key : $oldValue -> $newValue $(if($comment){'(comment preserved)'})" -ForegroundColor Yellow
                     } else {
-                        # Value is already correct, no change needed
                         $unchangedCount++
-                        Write-Host "  Skipped $key : already set to $oldValue" -ForegroundColor Gray
+                        Write-Host "    Skipped $key : already set to $oldValue" -ForegroundColor Gray
                     }
                 }
             }
@@ -143,31 +163,67 @@ function Update-ConfigFile {
     # Write the modified content back to the file
     $modifiedLines | Set-Content -Path $FilePath -Encoding UTF8
 
-    Write-Host "  Result: $changesApplied changes applied, $unchangedCount already correct" -ForegroundColor Cyan
-    Write-Host ""
+    Write-Host "    Result: $changesApplied changes, $unchangedCount unchanged" -ForegroundColor Cyan
 
     return $changesApplied
 }
 
-# Modify both files
-Write-Host "Modifying configuration files..." -ForegroundColor Green
-Write-Host ""
+# Process all found config pairs
 $totalChanges = 0
+$processedCount = 0
 
-foreach ($file in $files) {
-    $filePath = Join-Path $codPath $file
+foreach ($configPair in $allConfigPairs) {
+    Write-Host "======================================" -ForegroundColor Magenta
+    Write-Host "Processing: $($configPair.BaseName)" -ForegroundColor Magenta
+    Write-Host "Location: $($configPair.Path)" -ForegroundColor Magenta
+    Write-Host "======================================" -ForegroundColor Magenta
+    Write-Host ""
+
+    # Generate timestamp for backup
+    $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+    $archiveName = "cod_backup_$($configPair.BaseName)_${timestamp}.zip"
+    $archivePath = Join-Path $configPair.Path $archiveName
+
+    # Create backup
+    Write-Host "Creating backup: $archiveName" -ForegroundColor Cyan
     try {
-        $changes = Update-ConfigFile -FilePath $filePath -Changes $configChanges
-        $totalChanges += $changes
+        $filesToZip = @($configPair.Txt0, $configPair.Txt1)
+        Compress-Archive -Path $filesToZip -DestinationPath $archivePath -Force
+        Write-Host "Backup created: $archivePath" -ForegroundColor Green
+        Write-Host ""
     } catch {
-        Write-Error "Failed to modify $file : $_"
+        Write-Error "Failed to create backup: $_"
+        continue
+    }
+
+    # Modify files
+    Write-Host "Modifying configuration files..." -ForegroundColor Cyan
+
+    try {
+        $changes1 = Update-ConfigFile -FilePath $configPair.Txt0 -Changes $configChanges
+        Write-Host ""
+        $changes2 = Update-ConfigFile -FilePath $configPair.Txt1 -Changes $configChanges
+
+        $totalChanges += ($changes1 + $changes2)
+        $processedCount++
+
+        Write-Host ""
+        Write-Host "Completed: $($configPair.BaseName) ($($changes1 + $changes2) total changes)" -ForegroundColor Green
+        Write-Host ""
+
+    } catch {
+        Write-Error "Failed to modify files: $_"
     }
 }
 
-Write-Host "======================================" -ForegroundColor Green
-Write-Host "Operation completed successfully!" -ForegroundColor Green
-Write-Host "======================================" -ForegroundColor Green
-Write-Host "Total changes applied: $totalChanges"
-Write-Host "Backup location: $archivePath"
+# Final summary
 Write-Host ""
+Write-Host "======================================" -ForegroundColor Green
+Write-Host "All Operations Completed!" -ForegroundColor Green
+Write-Host "======================================" -ForegroundColor Green
+Write-Host "Processed config pairs: $processedCount" -ForegroundColor White
+Write-Host "Total changes applied: $totalChanges" -ForegroundColor White
+Write-Host ""
+Write-Host "Backups created in their respective directories." -ForegroundColor Cyan
 Write-Host "You can now launch Call of Duty with optimized settings." -ForegroundColor Cyan
+Write-Host ""

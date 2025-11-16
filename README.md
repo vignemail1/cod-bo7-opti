@@ -1,20 +1,33 @@
 # Call of Duty Config Patcher
 
-Script PowerShell pour optimiser les paramètres de Call of Duty Black Ops 7.
-
 Je vous invite vivement à lire le script.
 Il ne faut JAMAIS exécuter un script, surtout en mode administrateur, si on a un doute sur ce qui est réalisé par le script.
 C'est une règle de bon sens mais tout le monde n'est pas expert. Donc si vous n'avez pas confiance dans le script, passez votre chemin.
 
 Les étapes détails de mon opti BO7/Nvidia sont [ici](./docs/index.md).
+Script PowerShell pour optimiser automatiquement les paramètres de Call of Duty (Black Ops Cold War, Modern Warfare, Warzone).
 
 ## Fonctionnalités
 
-- **Détection automatique** : Trouve automatiquement les fichiers de configuration (cod24, cod25, etc.)
+- **Détection automatique** : Trouve automatiquement les fichiers de configuration (cod24, cod25, bt.cod25, etc.)
+- **Multi-formats** : Supporte tous les formats de fichiers de configuration Call of Duty
+- **Multi-emplacements** : Recherche dans les deux emplacements possibles de configuration
 - **Sauvegarde automatique** : Crée une archive ZIP horodatée avant toute modification
 - **Modification intelligente** : Ne modifie que les valeurs différentes de celles déjà configurées
 - **Préservation des commentaires** : Conserve tous les commentaires présents dans les fichiers
-- **Sortie détaillée** : Affiche clairement les changements effectués
+- **Sortie détaillée** : Affiche clairement les changements effectués pour chaque fichier
+
+## Formats de fichiers supportés
+
+Le script détecte automatiquement tous les formats de configuration :
+
+| Format                | Exemple               | Version du jeu        |
+| --------------------- | --------------------- | --------------------- |
+| `s.1.0.cod24.txt*`    | `s.1.0.cod24.txt0`    | Black Ops Cold War    |
+| `s.1.0.cod25.txt*`    | `s.1.0.cod25.txt0`    | Modern Warfare II/III |
+| `s.1.0.bt.cod25.txt*` | `s.1.0.bt.cod25.txt0` | Warzone, Black Ops 6  |
+
+Le script recherche les paires de fichiers `.txt0` et `.txt1` correspondantes.
 
 ## Paramètres optimisés
 
@@ -84,115 +97,155 @@ PowerShell -ExecutionPolicy Bypass -File "C:\cod_config_patcher.ps1"
 ### Exemple de sortie réussie
 
 ```text
-Scanning directory: C:\Users\USERNAME\Documents\Call of Duty\players
+Call of Duty Config Patcher v2.2
+=================================
 
-Found matching config pair: s.1.0.cod25
-Will process the following files:
-  - s.1.0.cod25.txt0
-  - s.1.0.cod25.txt1
+Searching for Call of Duty config files...
 
-Creating backup archive: cod_backup_20251116_100745.zip
+Scanning: C:\Users\USERNAME\Documents\Call of Duty\players
+  Found pair: s.1.0.cod24
+
+Scanning: C:\Users\USERNAME\AppData\Local\Activision\Call of Duty\Players
+  Found pair: s.1.0.bt.cod25
+
+Found 2 config pair(s) to process
+
+======================================
+Processing: s.1.0.cod24
+Location: C:\Users\USERNAME\Documents\Call of Duty\players
+======================================
+
+Creating backup: cod_backup_s.1.0.cod24_20251116_181245.zip
 Backup created successfully
 
 Modifying configuration files...
+  Processing: s.1.0.cod24.txt0
+    Changed ShowBlood : true -> false (comment preserved)
+    Changed ShowBrass : true -> false
+    Skipped CorpseLimit : already set to 0
+    Result: 2 changes, 1 unchanged
 
-Processing file: s.1.0.cod25.txt0
-  Changed ShowBlood : true -> false (comment preserved)
-  Changed ShowBrass : true -> false (comment preserved)
-  Skipped CorpseLimit : already set to 0
-  Changed ShaderQuality : Medium -> Low (comment preserved)
-  Result: 3 changes applied, 1 already correct
+  Processing: s.1.0.cod24.txt1
+    Changed NvidiaReflex : Disabled -> Enabled (comment preserved)
+    Result: 1 changes, 0 unchanged
 
-Processing file: s.1.0.cod25.txt1
-  Changed NvidiaReflex : Disabled -> Enabled (comment preserved)
-  Skipped BloodLimit : already set to true
-  Result: 1 changes applied, 1 already correct
+Completed: s.1.0.cod24 (3 total changes)
 
 ======================================
-Operation completed successfully!
+Processing: s.1.0.bt.cod25
+Location: C:\Users\USERNAME\AppData\Local\Activision\Call of Duty\Players
 ======================================
+
+Creating backup: cod_backup_s.1.0.bt.cod25_20251116_181246.zip
+Backup created successfully
+
+Modifying configuration files...
+  Processing: s.1.0.bt.cod25.txt0
+    Changed ShaderQuality : Medium -> Low (comment preserved)
+    Result: 1 changes, 0 unchanged
+
+  Processing: s.1.0.bt.cod25.txt1
+    Skipped NvidiaReflex : already set to Enabled
+    Result: 0 changes, 1 unchanged
+
+Completed: s.1.0.bt.cod25 (1 total changes)
+
+======================================
+All Operations Completed!
+======================================
+Processed config pairs: 2
 Total changes applied: 4
-Backup location: C:\Users\USERNAME\Documents\Call of Duty\players\cod_backup_20251116_100745.zip
 
+Backups created in their respective directories.
 You can now launch Call of Duty with optimized settings.
 ```
 
 ## Emplacement des fichiers
 
-### Fichiers de configuration
+Le script recherche automatiquement les fichiers de configuration dans :
 
-Les fichiers de configuration se trouvent dans :
+### Emplacement 1 : Documents (ancien)
 
 ```text
-C:\Users\[USERNAME]\Documents\Call of Duty\players\
+%USERPROFILE%\Documents\Call of Duty\players\
 ```
 
-Le script recherche automatiquement les fichiers correspondant au pattern :
+Exemple : `C:\Users\USERNAME\Documents\Call of Duty\players\`
 
-- `s.1.0.cod24.txt0` et `s.1.0.cod24.txt1`
-- `s.1.0.cod25.txt0` et `s.1.0.cod25.txt1`
-- Ou tout autre fichier `s.1.0.cod*.txt0` avec son `.txt1` correspondant
+### Emplacement 2 : LocalAppData (nouveau/recommandé)
+
+```text
+%LOCALAPPDATA%\Activision\Call of Duty\Players\
+```
+
+Exemple : `C:\Users\USERNAME\AppData\Local\Activision\Call of Duty\Players\`
+
+Le script traite **tous les fichiers trouvés** dans les deux emplacements.
 
 ### Sauvegardes
 
-Les sauvegardes sont créées au même emplacement que les fichiers de configuration avec le format :
+
+Les sauvegardes sont créées dans le **même dossier** que les fichiers de configuration originaux avec le format :
 
 ```text
-cod_backup_YYYYMMDD_HHMMSS.zip
+cod_backup_[NOM_BASE]_YYYYMMDD_HHMMSS.zip
 ```
 
-Exemple : `cod_backup_20251116_100745.zip`
+Exemples :
+
+- `cod_backup_s.1.0.cod24_20251116_181245.zip`
+- `cod_backup_s.1.0.cod25_20251116_181246.zip`
+- `cod_backup_s.1.0.bt.cod25_20251116_181247.zip`
+
+Chaque paire de fichiers a sa propre sauvegarde indépendante.
 
 ## Restauration
 
 Pour restaurer une configuration précédente :
 
-1. Localisez le fichier ZIP de sauvegarde dans le dossier `players`
+1. Localisez le fichier ZIP de sauvegarde dans le dossier approprié
 2. Extrayez les fichiers `.txt0` et `.txt1`
-3. Remplacez les fichiers actuels par ceux de la sauvegarde
-
-```powershell
-# Exemple de restauration manuelle
-$backupPath = "C:\Users\USERNAME\Documents\Call of Duty\players\cod_backup_20251116_100745.zip"
-$destPath = "C:\Users\USERNAME\Documents\Call of Duty\players\"
-
-Expand-Archive -Path $backupPath -DestinationPath $destPath -Force
-```
+3. Remplacez les fichiers actuels
 
 ## Dépannage
 
-### Erreur : "Directory not found"
+### Erreur : "No config files found in any location"
 
-Le dossier Call of Duty n'existe pas. Vérifiez que :
+Aucun fichier de configuration trouvé dans les deux emplacements. Solutions :
 
-- Call of Duty est installé
-- Vous avez lancé le jeu au moins une fois
-- Le chemin correspond à votre installation
-
-### Erreur : "No config files found"
-
-Aucun fichier de configuration trouvé. Solutions :
-
-- Lancez Call of Duty une fois pour créer les fichiers
-- Vérifiez manuellement le contenu du dossier `players`
+- Lancez Call of Duty au moins une fois pour générer les fichiers
+- Vérifiez manuellement les deux dossiers
 - Assurez-vous que les fichiers ne sont pas cachés
 
 ### Erreur : "No matching .txt0 and .txt1 file pair found"
 
 Un fichier `.txt0` existe mais pas son `.txt1` correspondant (ou inversement). Solutions :
 
-- Vérifiez l'intégrité des fichiers du jeu
+- Vérifiez l'intégrité des fichiers du jeu via Battle.net ou Steam
 - Lancez le jeu pour régénérer les fichiers manquants
+- Supprimez les fichiers orphelins et relancez le jeu
 
 ### Erreur : "Execution Policy"
 
-PowerShell bloque l'exécution du script. Solution :
+PowerShell bloque l'exécution du script. Solutions :
 
 ```powershell
+# Solution permanente (recommandée)
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# Solution temporaire
+PowerShell -ExecutionPolicy Bypass -File "C:/cod_config_patcher.ps1"
 ```
 
-Ou utilisez la Méthode 2 avec le paramètre `-ExecutionPolicy Bypass`.
+### Le script ne trouve qu'un seul emplacement
+
+C'est normal ! Call of Duty peut stocker ses configurations dans l'un ou l'autre emplacement selon :
+
+- La version du jeu
+- Le launcher utilisé (Battle.net, Steam)
+- Les mises à jour récentes
+
+Le script traite automatiquement tous les fichiers trouvés.
 
 ## Personnalisation
 
@@ -226,14 +279,65 @@ Après patch : 238 FPS avec 9-10 ms d'input lag.
 
 ### Jeux compatibles
 
-- Call of Duty: Black Ops 7
+- Call of Duty: Black Ops Cold War (cod24)
+- Call of Duty: Modern Warfare (2019)
+- Call of Duty: Warzone (bt.cod25)
+- Call of Duty: Modern Warfare II (cod25)
+- Call of Duty: Modern Warfare III (cod25)
+- Call of Duty: Black Ops 6 et 7 (bt.cod25)
+- Toute version future utilisant les formats cod* ou bt.cod*
 
 ### Systèmes supportés
 
 - Windows 10 (version 1809 ou supérieure)
 - Windows 11
 
+## FAQ
+
+### Quelle est la différence entre cod24, cod25 et bt.cod25 ?
+
+- **cod24** : Utilisé par Black Ops Cold War et anciennes versions
+- **cod25** : Utilisé par Modern Warfare II/III
+- **bt.cod25** : Utilisé par Warzone et Black Ops 6 (Battle.net version)
+
+Le script détecte et traite automatiquement tous ces formats.
+
+### Pourquoi deux emplacements différents ?
+
+Activision a changé l'emplacement des fichiers de configuration avec les mises à jour récentes. Les anciennes versions utilisent `Documents`, les nouvelles versions utilisent `LocalAppData`.
+
+### Le script va-t-il casser mes paramètres ?
+
+Non. Le script crée toujours une sauvegarde avant toute modification. Vous pouvez restaurer vos paramètres à tout moment.
+
+### Puis-je exécuter le script plusieurs fois ?
+
+Oui. Le script ne modifie que les valeurs différentes. S'il détecte que les paramètres sont déjà corrects, il les ignore.
+
+### Les modifications persistent-elles après une mise à jour du jeu ?
+
+Généralement oui, mais certaines mises à jour majeures peuvent réinitialiser les configurations. Réexécutez simplement le script après une mise à jour.
+
+### Le script fonctionne-t-il avec Black Ops 6 ?
+
+Oui ! Black Ops 6 utilise le format `s.1.0.bt.cod25` qui est maintenant supporté par le script.
+
 ## Changelog
+
+### Version 2.2 (2025-11-16)
+
+- Ajout du support pour le format `s.1.0.bt.cod25` (Warzone, Black Ops 6)
+- Recherche multi-patterns améliorée
+- Prévention des doublons de fichiers
+- Messages d'erreur plus informatifs avec liste des patterns supportés
+
+### Version 2.1 (2025-11-16)
+
+- Ajout du support multi-emplacements (Documents + LocalAppData)
+- Traitement de toutes les paires de fichiers trouvées
+- Sauvegardes séparées pour chaque paire
+- Interface améliorée avec résumé détaillé
+- Meilleure gestion des erreurs
 
 ### Version 2.0 (2025-11-16)
 
@@ -260,4 +364,4 @@ Ce script est fourni "tel quel" sans garantie. Utilisez-le à vos propres risque
 
 ## Auteur
 
-Script créé pour optimiser les performances de Call of Duty sur PC.
+vignemail1
