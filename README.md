@@ -50,6 +50,8 @@ Le script configure automatiquement 12 paramètres pour améliorer les performan
 
 ## Utilisation
 
+:warning: Pensez à refaire vos shaders après avoir appliqué les nouveaux settings. :warning:
+
 ### Méthode 1 : Exécution directe
 
 p.s. normalement administrateur ne devrait pas être nécessaire, mais au cas où.
