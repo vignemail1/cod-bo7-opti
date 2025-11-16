@@ -71,9 +71,7 @@ Write-Host ""
 $allConfigPairs = @()
 foreach ($path in $configPaths) {
     $pairs = Find-ConfigFiles -Path $path
-    if ($pairs.Count -gt 0) {
-        $allConfigPairs += $pairs
-    }
+    $allConfigPairs += $pairs
 }
 
 if ($allConfigPairs.Count -eq 0) {
