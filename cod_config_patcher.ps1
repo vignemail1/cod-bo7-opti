@@ -106,7 +106,6 @@ $configChanges = @{
     "DepthOfField" = "false"
     "DepthOfFieldQuality" = "Low"
     "CorpseLimit" = "0"
-    "ShaderQuality" = "Low"
     "SubdivisionLevel" = "0"
     "BulletImpacts" = "false"
     "TerrainQuality" = "Very Low"
