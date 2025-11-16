@@ -46,7 +46,7 @@ Le script configure automatiquement 12 paramètres pour améliorer les performan
 ### Téléchargement
 
 1. Téléchargez le fichier `cod_config_patcher.ps1`
-2. Placez-le dans le dossier recommandé : `C:/`
+2. Placez-le dans le dossier recommandé : `C:\`
 
 ## Utilisation
 
@@ -57,7 +57,7 @@ p.s. normalement administrateur ne devrait pas être nécessaire, mais au cas o�
 Ouvrez PowerShell en tant qu'administrateur (barre de recherche: Powershell, clic droit dessus, lancer en tant qu'administrateur) et exécutez :
 
 ```powershell
-cd C:/
+cd C:\
 .\cod_config_patcher.ps1
 ```
 
@@ -68,13 +68,13 @@ Si vous avez un message d'erreur (en rouge) assez long, c'est que l'execution di
 Si vous rencontrez une erreur de politique d'exécution :
 
 ```powershell
-PowerShell -ExecutionPolicy Bypass -File "C:/cod_config_patcher.ps1"
+PowerShell -ExecutionPolicy Bypass -File "C:\cod_config_patcher.ps1"
 ```
 
 ### Méthode 3 : Exécution depuis n'importe quel dossier
 
 ```powershell
-& "C:/cod_config_patcher.ps1"
+& "C:\cod_config_patcher.ps1"
 ```
 
 ## Sortie du script
