@@ -118,6 +118,8 @@ $configChanges = @{
      # default: "false"
     "SkipSeasonIntroVideo" = "true" 
      # default: "false"
+    "SkipSeasonVideo" = "true" 
+     # default: "false"
     "ViewedSplashScreen" = "true"
      # default: "false"
     "CorpsesCullingThreashold" = "0.500000"
