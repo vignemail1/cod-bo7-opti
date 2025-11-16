@@ -38,3 +38,8 @@ p.s. la qualité du rendu n'est pas au rdv pour un FPS
 
 ![BO7-opti-GSYNC-VSYNC-100-Reflex-on](BO7-opti-GSYNC-VSYNC-100-Reflex-on.png)
 ![BO7-opti-GSYNC-VSYNC-100-Reflex-on](BO7-opti-GSYNC-VSYNC-100-Reflex-on_input-lag.png)
+
+## Mes settings jeu
+
+![Fidelity_90_VRAM_80](Fidelity_90_VRAM_80.png)
+![BO7-nvidia-reflex-avec](BO7-nvidia-reflex-avec.png)
