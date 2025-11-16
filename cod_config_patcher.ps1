@@ -110,48 +110,49 @@ $configChanges = @{
     "BulletImpacts" = "false"
     "TerrainQuality" = "Very Low"
     "Tessellation" = "0_Off"
-    "StaticSunshadowClipmapResolution" = "0"
-     # default: "1024"
-    "EnableVelocityBasedBlur" = "false" 
-     # default: "true"
-    "SkipIntro" = "true" 
-     # default: "false"
-    "SkipSeasonIntroVideo" = "true" 
-     # default: "false"
-    "SkipSeasonVideo" = "true" 
-     # default: "false"
-    "ViewedSplashScreen" = "true"
-     # default: "false"
-    "CorpsesCullingThreashold" = "0.500000"
-     # default: "0.850000"
-    "ShaderQuality" = "Low"
-     # default: "Default"
-    "ReflectionProbeRelighting" = "1"
-     # default: "4"
-    "ScreenSpaceShadowQuality" = "Off"
-     # default: "High"
-    "SSRQuality" = "Off"
-     # Default: "High"
-    "WorldStreamingQuality" = "Low"
-     # Default: "High"
-    "AmbientLightingQuality" = "Off"
-     # default: "Ultra"
-    "ModelQuality" = "Low Quality"
-     # default: "High Quality"
-    "ParticleQuality" = "very low"
-     # default: "high"
-    "ShadowQuality" = "Very_Low"
-     # default: "Very_High"
-    "VolumetricQuality" = "QUALITY_LOW"
-     # default: "QUALITY_HIGH"
-    "WaterCausticsMode" = "Off"
-     # Default: "Low Quality"
-    "WaterWaveWetness" = "false" 
-     # Default: "true"
-    "WeatherGridVolumesQuality" = "Off"
-     # default: "Ultra"
+    "StaticSunshadowClipmapResolution" = "0" # default: "1024"
+    "EnableVelocityBasedBlur" = "false" # default: "true"
+    "SkipIntro" = "true" # default: "false"
+    "SkipSeasonIntroVideo" = "true" # default: "false"
+    "SkipSeasonVideo" = "true" # default: "false"
+    "ViewedSplashScreen" = "true"# default: "false"
+    "CorpsesCullingThreashold" = "0.500000"# default: "0.850000"
+    "ShaderQuality" = "Low"# default: "Default"
+    "ReflectionProbeRelighting" = "1"# default: "4"
+    "ScreenSpaceShadowQuality" = "Off"# default: "High"
+    "SSRQuality" = "Off"# Default: "High"
+    "WorldStreamingQuality" = "Low"# Default: "High"
+    "AmbientLightingQuality" = "Off"# default: "Ultra"
+    "ModelQuality" = "Low Quality"# default: "High Quality"
+    "ParticleQuality" = "very low"# default: "high"
+    "ShadowQuality" = "Very_Low"# default: "Very_High"
+    "VolumetricQuality" = "QUALITY_LOW"# default: "QUALITY_HIGH"
+    "WaterCausticsMode" = "Off"# Default: "Low Quality"
+    "WaterWaveWetness" = "false" # Default: "true"
+    "WeatherGridVolumesQuality" = "Off"# default: "Ultra"
 }
 
+# Function to detect line ending style
+function Get-LineEnding {
+    param (
+        [string]$FilePath
+    )
+
+    # Read file as raw bytes
+    $bytes = [System.IO.File]::ReadAllBytes($FilePath)
+
+    # Check for CRLF (0x0D 0x0A) or LF (0x0A)
+    for ($i = 0; $i -lt $bytes.Length - 1; $i++) {
+        if ($bytes[$i] -eq 0x0D -and $bytes[$i + 1] -eq 0x0A) {
+            return "CRLF"
+        }
+        if ($bytes[$i] -eq 0x0A) {
+            return "LF"
+        }
+    }
+
+    return "LF"  # Default to LF if no line ending found
+}
 # Function to modify config file
 function Update-ConfigFile {
     param (
@@ -161,8 +162,16 @@ function Update-ConfigFile {
 
     Write-Host "  Processing: $(Split-Path $FilePath -Leaf)" -ForegroundColor Cyan
 
-    # Read the file content
-    $lines = Get-Content -Path $FilePath
+    # Detect original line ending
+    $lineEnding = Get-LineEnding -FilePath $FilePath
+    Write-Host "    Detected line ending: $lineEnding" -ForegroundColor Gray
+
+    # Read the file content as raw text preserving encoding
+    $content = [System.IO.File]::ReadAllText($FilePath)
+
+    # Split by line endings (handle both CRLF and LF)
+    $lines = $content -split '\r?\n'
+
     $modifiedLines = @()
     $changesApplied = 0
     $unchangedCount = 0
@@ -200,8 +209,15 @@ function Update-ConfigFile {
         $modifiedLines += $modifiedLine
     }
 
-    # Write the modified content back to the file
-    $modifiedLines | Set-Content -Path $FilePath -Encoding UTF8
+    # Join lines with the original line ending
+    if ($lineEnding -eq "LF") {
+        $newContent = ($modifiedLines -join "`n")
+    } else {
+        $newContent = ($modifiedLines -join "`r`n")
+    }
+
+    # Write the file preserving the original line ending and encoding
+    [System.IO.File]::WriteAllText($FilePath, $newContent, [System.Text.UTF8Encoding]::new($false))
 
     Write-Host "    Result: $changesApplied changes, $unchangedCount unchanged" -ForegroundColor Cyan
 
